@@ -1,0 +1,366 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["queryCompiler", "driverAdapters"]
+  engineType      = "client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  TENANT
+}
+
+enum RoomType {
+  STANDARD
+  DELUXE
+  VIP
+}
+
+enum RoomStatus {
+  AVAILABLE
+  OCCUPIED
+  LOCKED
+  MAINTENANCE
+}
+
+enum TenancyStatus {
+  PENDING_PAYMENT
+  ACTIVE
+  ENDED
+  CANCELLED
+}
+
+enum BookingStatus {
+  PENDING
+  PAID
+  EXPIRED
+  CANCELLED
+}
+
+enum BillStatus {
+  UNPAID
+  WAITING_VERIFICATION
+  PAID
+  OVERDUE
+}
+
+enum BillItemType {
+  RENT
+  ELECTRIC
+  WATER
+  SERVICE
+  FINE
+}
+
+enum PaymentMethod {
+  QRIS_DEMO
+  TRANSFER
+  CASH
+}
+
+enum PaymentStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum ComplaintStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+enum RequestType {
+  EXTEND
+  ROOM_CHANGE
+  CHECKOUT
+  GUEST
+  SERVICE
+}
+
+enum RequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model User {
+  id             String   @id @default(cuid())
+  username       String   @unique
+  passwordHash   String
+  role           Role     @default(TENANT)
+  fullName       String
+  phone          String
+  email          String?
+  idCardUrl      String?
+  emergencyName  String?
+  emergencyPhone String?
+  occupation     String?
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+
+  tenancies        Tenancy[]
+  bookings         Booking[]
+  complaints       Complaint[]
+  complaintReplies ComplaintReply[]
+  requests         Request[]
+  notifications    Notification[]
+  sessions         Session[]
+
+  @@index([role])
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Room {
+  id          String     @id @default(cuid())
+  number      String     @unique
+  type        RoomType   @default(STANDARD)
+  floor       Int        @default(1)
+  price       Int
+  size        String
+  description String     @default("")
+  facilities  String[]   @default([])
+  status      RoomStatus @default(AVAILABLE)
+  lockReason  String?
+  createdAt   DateTime   @default(now())
+
+  photos     RoomPhoto[]
+  tenancies  Tenancy[]
+  bookings   Booking[]
+  complaints Complaint[]
+
+  @@index([status])
+  @@index([type])
+}
+
+model RoomPhoto {
+  id     String @id @default(cuid())
+  roomId String
+  url    String
+  order  Int    @default(0)
+
+  room Room @relation(fields: [roomId], references: [id], onDelete: Cascade)
+
+  @@index([roomId])
+}
+
+model Tenancy {
+  id              String        @id @default(cuid())
+  userId          String
+  roomId          String
+  startDate       DateTime
+  endDate         DateTime
+  durationMonths  Int
+  monthlyPrice    Int
+  depositAmount   Int           @default(0)
+  depositReturned Boolean       @default(false)
+  status          TenancyStatus @default(PENDING_PAYMENT)
+  createdAt       DateTime      @default(now())
+
+  user  User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  room  Room   @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  bills Bill[]
+
+  @@index([userId])
+  @@index([roomId])
+  @@index([status])
+}
+
+model Booking {
+  id             String        @id @default(cuid())
+  userId         String
+  roomId         String
+  startDate      DateTime
+  durationMonths Int
+  totalAmount    Int
+  holdUntil      DateTime
+  status         BookingStatus @default(PENDING)
+  createdAt      DateTime      @default(now())
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  room     Room      @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  payments Payment[]
+
+  @@index([userId])
+  @@index([roomId])
+  @@index([status])
+}
+
+model Bill {
+  id          String     @id @default(cuid())
+  tenancyId   String
+  period      String
+  dueDate     DateTime
+  baseAmount  Int
+  lateFee     Int        @default(0)
+  totalAmount Int
+  status      BillStatus @default(UNPAID)
+  paidAt      DateTime?
+  createdAt   DateTime   @default(now())
+
+  tenancy  Tenancy    @relation(fields: [tenancyId], references: [id], onDelete: Cascade)
+  items    BillItem[]
+  payments Payment[]
+
+  @@unique([tenancyId, period])
+  @@index([status])
+  @@index([dueDate])
+}
+
+model BillItem {
+  id     String       @id @default(cuid())
+  billId String
+  label  String
+  amount Int
+  type   BillItemType @default(RENT)
+
+  bill Bill @relation(fields: [billId], references: [id], onDelete: Cascade)
+
+  @@index([billId])
+}
+
+model Payment {
+  id         String        @id @default(cuid())
+  billId     String?
+  bookingId  String?
+  amount     Int
+  method     PaymentMethod @default(QRIS_DEMO)
+  proofUrl   String?
+  status     PaymentStatus @default(PENDING)
+  qrisRef    String?       @unique
+  paidAt     DateTime?
+  verifiedAt DateTime?
+  note       String?
+  createdAt  DateTime      @default(now())
+
+  bill    Bill?    @relation(fields: [billId], references: [id], onDelete: Cascade)
+  booking Booking? @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  @@index([billId])
+  @@index([bookingId])
+  @@index([status])
+}
+
+model Complaint {
+  id          String          @id @default(cuid())
+  userId      String
+  roomId      String?
+  category    String
+  priority    Priority        @default(MEDIUM)
+  title       String
+  description String
+  photoUrls   String[]        @default([])
+  status      ComplaintStatus @default(OPEN)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  user    User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  room    Room?            @relation(fields: [roomId], references: [id], onDelete: SetNull)
+  replies ComplaintReply[]
+
+  @@index([userId])
+  @@index([status])
+}
+
+model ComplaintReply {
+  id          String   @id @default(cuid())
+  complaintId String
+  userId      String
+  message     String
+  createdAt   DateTime @default(now())
+
+  complaint Complaint @relation(fields: [complaintId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([complaintId])
+}
+
+model Request {
+  id        String        @id @default(cuid())
+  userId    String
+  type      RequestType
+  payload   Json          @default("{}")
+  note      String?
+  status    RequestStatus @default(PENDING)
+  adminNote String?
+  createdAt DateTime      @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([status])
+}
+
+model Announcement {
+  id        String   @id @default(cuid())
+  title     String
+  content   String
+  isPinned  Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([isPinned])
+}
+
+model Expense {
+  id       String   @id @default(cuid())
+  category String
+  label    String
+  amount   Int
+  date     DateTime
+  note     String?
+
+  @@index([date])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  title     String
+  message   String
+  link      String?
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isRead])
+}
+
+model Setting {
+  id    String @id @default(cuid())
+  key   String @unique
+  value String
+}
+
+/// Penyimpanan berkas di database. Dipakai otomatis kalau filesystem
+/// tidak bisa ditulis (contoh: hosting Vercel). Di komputer sendiri
+/// berkas tetap disimpan ke /public/uploads.
+model FileBlob {
+  id        String   @id @default(cuid())
+  filename  String
+  mimeType  String
+  size      Int
+  data      Bytes
+  createdAt DateTime @default(now())
+}
