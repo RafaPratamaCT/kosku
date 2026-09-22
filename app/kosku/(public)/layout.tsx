@@ -1,3 +1,4 @@
+import { DemoNoticeBar } from '@/components/demo-notice';
 import { SiteFooter } from '@/components/public/site-footer';
 import { SiteNav } from '@/components/public/site-nav';
 import { getCurrentUser } from '@/lib/auth';
@@ -8,6 +9,7 @@ export default async function PublicLayout({ children }: { children: React.React
 
   return (
     <div className="flex min-h-screen flex-col">
+      <DemoNoticeBar />
       <SiteNav
         kosName={settings.kosName}
         user={user ? { fullName: user.fullName, role: user.role } : null}
