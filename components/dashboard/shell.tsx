@@ -24,6 +24,7 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 
+import { AuthorCredit } from '@/components/author-credit';
 import { Button } from '@/components/ui/button';
 import { logoutAction } from '@/lib/actions/auth';
 import { initials } from '@/lib/format';
@@ -222,6 +223,9 @@ export function DashboardShell({
 
         <main className="flex-1 px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
           <div className="mx-auto w-full max-w-[1180px] animate-fade-up">{children}</div>
+          <div className="mx-auto mt-10 w-full max-w-[1180px]">
+            <AuthorCredit />
+          </div>
         </main>
       </div>
     </div>

@@ -1,13 +1,14 @@
 import Link from 'next/link';
 import { Mail, MapPin, Phone } from 'lucide-react';
 
+import { AuthorCredit } from '@/components/author-credit';
 import type { SettingsMap } from '@/lib/settings';
 import { waLink } from '@/lib/format';
 
 export function SiteFooter({ settings }: { settings: SettingsMap }) {
   return (
     <footer className="border-t border-line bg-surface">
-      <div className="container grid gap-10 py-14 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="container grid gap-10 pb-10 pt-14 sm:grid-cols-2 lg:grid-cols-4">
         <div className="space-y-3">
           <div className="flex items-center gap-2.5">
             <span className="flex size-9 items-center justify-center rounded-md bg-brand text-[15px] font-bold text-white">
@@ -92,6 +93,10 @@ export function SiteFooter({ settings }: { settings: SettingsMap }) {
             </li>
           </ul>
         </div>
+      </div>
+
+      <div className="container pb-12">
+        <AuthorCredit />
       </div>
 
       <div className="border-t border-line">
