@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#12796b" />
+    <title>Tidak ada koneksi · KosKu</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --canvas: #fbf9f5;
+        --surface: #ffffff;
+        --ink: #1a1d1c;
+        --ink-muted: #5c6360;
+        --brand: #12796b;
+        --brand-soft: #e6f3f0;
+        --line: #e7e4de;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+        background: var(--canvas);
+        color: var(--ink);
+        font-family:
+          'Plus Jakarta Sans',
+          system-ui,
+          -apple-system,
+          'Segoe UI',
+          Roboto,
+          sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+      .card {
+        width: 100%;
+        max-width: 380px;
+        text-align: center;
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 24px;
+        padding: 40px 28px;
+        box-shadow:
+          0 1px 2px rgb(17 24 39 / 0.04),
+          0 8px 24px -12px rgb(17 24 39 / 0.1);
+      }
+      .badge {
+        width: 56px;
+        height: 56px;
+        margin: 0 auto 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 16px;
+        background: var(--brand-soft);
+        color: var(--brand);
+      }
+      h1 {
+        margin: 0 0 10px;
+        font-size: 21px;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+      }
+      p {
+        margin: 0 0 24px;
+        font-size: 14.5px;
+        line-height: 1.6;
+        color: var(--ink-muted);
+      }
+      button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        width: 100%;
+        padding: 12px 20px;
+        border: 0;
+        border-radius: 12px;
+        background: var(--brand);
+        color: #fff;
+        font: inherit;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      button:active {
+        background: #0e6153;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <div class="badge" aria-hidden="true">
+        <svg
+          width="26"
+          height="26"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="m2 2 20 20" />
+          <path d="M8.5 16.4a5 5 0 0 1 7 0" />
+          <path d="M5 12.9a10 10 0 0 1 5.2-2.7" />
+          <path d="M2 8.8a15 15 0 0 1 4.2-2.5" />
+          <path d="M14 6.3a15 15 0 0 1 8 2.5" />
+          <path d="M17.8 11.2a10 10 0 0 1 1.2.8" />
+          <path d="M12 20h.01" />
+        </svg>
+      </div>
+      <h1>Tidak ada koneksi</h1>
+      <p>
+        KosKu butuh internet untuk menampilkan data kamar, tagihan, dan pembayaran. Periksa
+        sambungan Anda, lalu coba lagi.
+      </p>
+      <button type="button" onclick="location.reload()">Coba lagi</button>
+    </div>
+  </body>
+</html>
