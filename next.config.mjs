@@ -4,6 +4,12 @@ const nextConfig = {
   eslint: { ignoreDuringBuilds: true },
   experimental: {
     serverComponentsExternalPackages: ['@react-pdf/renderer', 'bcryptjs'],
+    outputFileTracingIncludes: {
+      '/**': [
+        './node_modules/.prisma/client/query_compiler_bg.wasm',
+        './node_modules/.prisma/client/schema.prisma',
+      ],
+    },
   },
 };
 
